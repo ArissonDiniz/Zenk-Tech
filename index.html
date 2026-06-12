@@ -123,6 +123,33 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 .login-divider{text-align:center;font-size:12px;color:var(--hint);margin:16px 0}
 .login-lgpd{font-size:11px;color:var(--hint);text-align:center;margin-top:20px;line-height:1.6}
 .login-lgpd a{color:var(--muted);text-decoration:underline;cursor:pointer}
+.register-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+.register-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px 28px;width:100%;max-width:420px}
+.register-logo{font-size:24px;font-weight:800;color:var(--yellow);text-align:center;margin-bottom:4px;letter-spacing:-1px}
+.register-sub{font-size:14px;color:var(--muted);text-align:center;margin-bottom:28px}
+.register-back{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px;cursor:pointer;margin-bottom:24px;width:fit-content;transition:color .15s}
+.register-back:hover{color:var(--text)}
+.register-steps{display:flex;gap:6px;margin-bottom:28px}
+.register-step{flex:1;height:3px;border-radius:2px;background:var(--border2);transition:background .3s}
+.register-step.done{background:var(--yellow)}
+.field-hint{font-size:11px;color:var(--hint);margin-top:5px}
+.strength-bar{height:4px;border-radius:2px;margin-top:6px;transition:all .3s;background:var(--border2)}
+.strength-bar.fraca{background:var(--red);width:33%}
+.strength-bar.media{background:var(--yellow);width:66%}
+.strength-bar.forte{background:var(--green);width:100%}
+.strength-label{font-size:11px;margin-top:4px}
+.strength-label.fraca{color:var(--red)}
+.strength-label.media{color:var(--yellow)}
+.strength-label.forte{color:var(--green)}
+.input-wrapper{position:relative}
+.input-wrapper .form-input{padding-right:48px}
+.toggle-pass{position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px;padding:4px}
+.avatar-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:8px}
+.avatar-opt{width:100%;aspect-ratio:1;border-radius:50%;border:2px solid var(--border2);background:var(--surface2);font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.avatar-opt.selected{border-color:var(--yellow);background:var(--yellow-bg);transform:scale(1.1)}
+.divider-line{display:flex;align-items:center;gap:12px;margin:20px 0}
+.divider-line::before,.divider-line::after{content:'';flex:1;height:1px;background:var(--border)}
+.divider-line span{font-size:12px;color:var(--hint)}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:12px 20px;font-size:14px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:400;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.success{border-color:var(--green);color:var(--green)}
@@ -164,11 +191,102 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
       <input type="password" id="loginPass" class="form-input" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
     </div>
     <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="doLogin()">Entrar</button>
-    <div class="login-divider">primeira vez aqui?</div>
-    <button class="btn btn-ghost" style="width:100%" onclick="doRegister()">Criar conta</button>
+    <div class="divider-line"><span>não tem conta?</span></div>
+    <button class="btn btn-ghost" style="width:100%" onclick="showRegisterScreen()">Criar conta grátis</button>
     <div class="login-lgpd">
       Dados armazenados com segurança na nuvem.<br>
       <a onclick="showPrivacy()">Política de privacidade</a> · LGPD art. 18
+    </div>
+  </div>
+</div>
+
+<!-- REGISTRO -->
+<div id="registerScreen" class="register-wrap" style="display:none">
+  <div class="register-card">
+    <div onclick="showLoginScreen()" class="register-back">
+      <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Voltar para o login
+    </div>
+    <div class="register-logo">Zenk Tech</div>
+    <div class="register-sub">Crie sua conta gratuitamente</div>
+    <div class="register-steps">
+      <div class="register-step done" id="step1bar"></div>
+      <div class="register-step" id="step2bar"></div>
+      <div class="register-step" id="step3bar"></div>
+    </div>
+
+    <!-- STEP 1: Identidade -->
+    <div id="regStep1">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;font-weight:500">1 de 3 — Sua identidade</div>
+      <div class="form-group">
+        <label class="form-label">Como quer ser chamado?</label>
+        <input type="text" id="regName" class="form-input" placeholder="Ex: João Silva" autocomplete="name">
+        <div class="field-hint">Este será seu nome de exibição no app</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Escolha um avatar</label>
+        <div class="avatar-grid" id="avatarGrid"></div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="regNext(1)">Continuar →</button>
+    </div>
+
+    <!-- STEP 2: Acesso -->
+    <div id="regStep2" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:16px;font-weight:500">2 de 3 — Dados de acesso</div>
+      <div class="form-group">
+        <label class="form-label">E-mail de recuperação</label>
+        <input type="email" id="regEmail" class="form-input" placeholder="seu@email.com" autocomplete="email">
+        <div class="field-hint">Usado apenas para recuperar sua conta se esquecer a senha</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Crie uma senha</label>
+        <div class="input-wrapper">
+          <input type="password" id="regPass" class="form-input" placeholder="Mínimo 6 caracteres" autocomplete="new-password" oninput="checkStrength(this.value)">
+          <button class="toggle-pass" onclick="toggleVis('regPass',this)" type="button">👁</button>
+        </div>
+        <div class="strength-bar" id="strengthBar"></div>
+        <div class="strength-label" id="strengthLabel"></div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirme a senha</label>
+        <div class="input-wrapper">
+          <input type="password" id="regPass2" class="form-input" placeholder="Repita a senha" autocomplete="new-password">
+          <button class="toggle-pass" onclick="toggleVis('regPass2',this)" type="button">👁</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:8px">
+        <button class="btn btn-ghost" onclick="regBack(2)">← Voltar</button>
+        <button class="btn btn-primary" onclick="regNext(2)">Continuar →</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: Confirmação -->
+    <div id="regStep3" style="display:none">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px;font-weight:500">3 de 3 — Confirme seus dados</div>
+      <div style="background:var(--surface2);border-radius:var(--radius);padding:16px;display:flex;flex-direction:column;gap:12px;margin-bottom:20px">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div id="confirmAvatar" style="font-size:32px;width:48px;height:48px;background:var(--yellow-bg);border-radius:50%;display:flex;align-items:center;justify-content:center"></div>
+          <div>
+            <div style="font-size:15px;font-weight:600" id="confirmName"></div>
+            <div style="font-size:12px;color:var(--muted)" id="confirmEmail"></div>
+          </div>
+        </div>
+        <div style="height:1px;background:var(--border)"></div>
+        <div style="font-size:12px;color:var(--muted);line-height:1.8">
+          ✅ Dados salvos com segurança na nuvem<br>
+          ✅ Backup automático diário<br>
+          ✅ Acesse de qualquer dispositivo<br>
+          ✅ Direito de exclusão garantido (LGPD)
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button class="btn btn-ghost" onclick="regBack(3)">← Voltar</button>
+        <button class="btn btn-primary" id="regFinalBtn" onclick="doRegister()">Criar minha conta ✓</button>
+      </div>
+      <div class="login-lgpd" style="margin-top:16px">
+        Ao criar sua conta você concorda com nossa<br>
+        <a onclick="showPrivacy()">política de privacidade</a> (LGPD art. 18)
+      </div>
     </div>
   </div>
 </div>
@@ -473,19 +591,96 @@ async function doLogin(){
   loginSuccess(data);
 }
 
+// ===== REGISTER FLOW =====
+const AVATARS = ['😀','😎','🦁','🐯','🦊','🐺','🐻','🐼','🦅','🦋','🌟','🔥','💎','🚀','⚡','🎯'];
+let regAvatar = AVATARS[0];
+
+function showRegisterScreen(){
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('registerScreen').style.display='flex';
+  // Montar grid de avatares
+  const grid = document.getElementById('avatarGrid');
+  grid.innerHTML = AVATARS.map((a,i) => `
+    <div class="avatar-opt ${i===0?'selected':''}" onclick="selectAvatar('${a}',this)">${a}</div>
+  `).join('');
+  regAvatar = AVATARS[0];
+  // Reset steps
+  showRegStep(1);
+}
+function showLoginScreen(){
+  document.getElementById('registerScreen').style.display='none';
+  document.getElementById('loginScreen').style.display='flex';
+}
+function selectAvatar(a, el){
+  regAvatar = a;
+  document.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function showRegStep(n){
+  [1,2,3].forEach(i=>{
+    document.getElementById('regStep'+i).style.display = i===n?'block':'none';
+    document.getElementById('step'+i+'bar').classList.toggle('done', i<=n);
+  });
+}
+function regNext(step){
+  if(step===1){
+    const name = document.getElementById('regName').value.trim();
+    if(!name){showToast('Digite seu nome','error');return;}
+    showRegStep(2);
+    setTimeout(()=>document.getElementById('regEmail').focus(),100);
+  } else if(step===2){
+    const email = document.getElementById('regEmail').value.trim();
+    const pass = document.getElementById('regPass').value;
+    const pass2 = document.getElementById('regPass2').value;
+    if(!email||!email.includes('@')){showToast('E-mail inválido','error');return;}
+    if(pass.length<6){showToast('Senha deve ter ao menos 6 caracteres','error');return;}
+    if(pass!==pass2){showToast('As senhas não coincidem','error');return;}
+    // Preencher confirmação
+    document.getElementById('confirmName').textContent = document.getElementById('regName').value.trim();
+    document.getElementById('confirmEmail').textContent = email;
+    document.getElementById('confirmAvatar').textContent = regAvatar;
+    showRegStep(3);
+  }
+}
+function regBack(step){
+  showRegStep(step-1);
+}
+function checkStrength(val){
+  const bar = document.getElementById('strengthBar');
+  const lbl = document.getElementById('strengthLabel');
+  if(!val){bar.className='strength-bar';lbl.textContent='';return;}
+  const strong = val.length>=8 && /[A-Z]/.test(val) && /[0-9]/.test(val);
+  const medium = val.length>=6;
+  if(strong){bar.className='strength-bar forte';lbl.className='strength-label forte';lbl.textContent='Senha forte ✓';}
+  else if(medium){bar.className='strength-bar media';lbl.className='strength-label media';lbl.textContent='Senha média';}
+  else{bar.className='strength-bar fraca';lbl.className='strength-label fraca';lbl.textContent='Senha fraca';}
+}
+function toggleVis(id,btn){
+  const inp = document.getElementById(id);
+  inp.type = inp.type==='password'?'text':'password';
+  btn.textContent = inp.type==='password'?'👁':'🙈';
+}
+
 async function doRegister(){
-  const name = document.getElementById('loginName').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  if(!name||!pass){showToast('Preencha nome e senha','error');return;}
-  if(pass.length<4){showToast('Senha deve ter ao menos 4 caracteres','error');return;}
-  showLoading('Criando conta...');
-  const {data:exist} = await db.from('app_users').select('id').ilike('name',name).single();
-  if(exist){hideLoading();showToast('Usuário já existe. Faça login.','error');return;}
-  const {data,error} = await db.from('app_users').insert({id:uid(),name,pass:btoa(pass)}).select().single();
-  hideLoading();
-  if(error){showToast('Erro ao criar conta: '+error.message,'error');return;}
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const btn = document.getElementById('regFinalBtn');
+  btn.textContent = 'Criando conta...';
+  btn.disabled = true;
+  // Checar se usuário já existe
+  const {data:exist} = await db.from('app_users').select('id').ilike('name',name).maybeSingle();
+  if(exist){
+    btn.textContent='Criar minha conta ✓'; btn.disabled=false;
+    showToast('Esse nome já está em uso. Escolha outro.','error'); return;
+  }
+  const {data,error} = await db.from('app_users').insert({
+    id:uid(), name, email, pass:btoa(pass), avatar:regAvatar
+  }).select().single();
+  btn.textContent='Criar minha conta ✓'; btn.disabled=false;
+  if(error){showToast('Erro: '+error.message,'error');return;}
   loginSuccess(data);
-  showToast('Conta criada! Bem-vindo(a), '+name,'success');
+  showToast('Conta criada! Bem-vindo(a), '+name+' '+regAvatar,'success');
 }
 
 async function loginSuccess(user){
