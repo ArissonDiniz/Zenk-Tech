@@ -607,10 +607,6 @@ function showRegisterScreen(){
   // Reset steps
   showRegStep(1);
 }
-function showLoginScreen(){
-  document.getElementById('registerScreen').style.display='none';
-  document.getElementById('loginScreen').style.display='flex';
-}
 function selectAvatar(a, el){
   regAvatar = a;
   document.querySelectorAll('.avatar-opt').forEach(x=>x.classList.remove('selected'));
@@ -687,10 +683,12 @@ async function loginSuccess(user){
   currentUser = user;
   sessionStorage.setItem('fin_user_id', user.id);
   document.getElementById('loginScreen').style.display='none';
+  document.getElementById('registerScreen').style.display='none';
+  document.getElementById('loadingScreen').style.display='none';
   document.getElementById('appScreen').style.display='flex';
   document.getElementById('fabBtn').style.display='flex';
-  document.getElementById('topbarUser').textContent=user.name;
-  document.getElementById('configName').textContent=user.name;
+  document.getElementById('topbarUser').textContent=user.name+(user.avatar?' '+user.avatar:'');
+  document.getElementById('configName').textContent=user.name+(user.avatar?' '+user.avatar:'');
   await loadAllData();
   renderAll();
 }
@@ -715,6 +713,8 @@ async function checkSession(){
 
 function showLoginScreen(){
   document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('registerScreen').style.display='none';
+  document.getElementById('appScreen').style.display='none';
   document.getElementById('loginScreen').style.display='flex';
 }
 
